@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sustainable Fuel Blend Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background with floating particles */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%);
+        }
+
+        .particle {
+            position: absolute;
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Glassmorphism container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            animation: slideInUp 1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideInUp {
+            0% { 
+                opacity: 0; 
+                transform: translateY(100px) scale(0.8); 
+                filter: blur(10px);
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+                filter: blur(0);
+            }
+        }
+
+        /* Animated header with gradient text */
+        .card-header {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.03) 0%, 
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.05) 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .card-header h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #cccccc, #999999);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .card-header p {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 3rem;
+            position: relative;
+        }
+
+        /* Futuristic form styling */
+        .form-label {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #666666, #999999);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            animation: iconPulse 2s infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); }
+        }
+
+        /* Interactive file drop zone */
+        .file-drop-zone {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .file-drop-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .file-drop-zone:hover::before {
+            opacity: 1;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .file-drop-zone:hover {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+        }
+
+        .file-drop-zone.dragover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #cccccc;
+            transform: scale(1.02);
+            animation: borderPulse 0.5s infinite alternate;
+        }
+
+        @keyframes borderPulse {
+            from { border-color: #ffffff; }
+            to { border-color: #cccccc; }
+        }
+
+        .file-drop-zone p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .file-drop-zone .highlight {
+            color: #ffffff;
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-color: #cccccc;
+        }
+
+        /* Spectacular button design */
+        .btn-primary {
+            background: linear-gradient(135deg, #666666 0%, #999999 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 1.5rem 3rem;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #777777 0%, #aaaaaa 100%);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* Loading animation */
+        .loading-container {
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .custom-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            font-weight: 500;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Results container styling */
+        #resultContainer {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            animation: resultAppear 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes resultAppear {
+            0% { 
+                opacity: 0; 
+                transform: translateY(50px) scale(0.9);
+                filter: blur(10px);
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .result-title {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Error alert styling */
+        .alert-danger {
+            background: rgba(255, 0, 100, 0.1);
+            border: 1px solid rgba(255, 0, 100, 0.3);
+            color: #ff6b9d;
+            border-radius: 16px;
+            padding: 1.5rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .card-header h1 {
+                font-size: 2.5rem;
+            }
+            .card-header p {
+                font-size: 1.1rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .card-body {
+                padding: 2rem;
+            }
+            .file-drop-zone {
+                padding: 2rem 1rem;
+            }
+            .btn-primary {
+                padding: 1.2rem 2rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Add some micro-animations */
+        .card-body > * {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card-body > *:nth-child(1) { animation-delay: 0.1s; }
+        .card-body > *:nth-child(2) { animation-delay: 0.2s; }
+        .card-body > *:nth-child(3) { animation-delay: 0.3s; }
+        .card-body > *:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <div class="card main-card">
+            <div class="card-header">
+                <h1><i class="fas fa-rocket"></i> FUEL BLEND AI</h1>
+                <p>Next-Generation Sustainable Energy Optimization</p>
+            </div>
+            <div class="card-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="file-input-container">
+                        <label for="csvFile" class="form-label">
+                            <span class="feature-icon">
+                                <i class="fas fa-file-csv"></i>
+                            </span>
+                            UPLOAD DATA FILE
+                        </label>
+                        <div class="file-drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Drag and drop CSV file or click to upload">
+                            <p class="mb-0">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #ffffff; margin-bottom: 1rem; display: block;"></i>
+                                Drag & Drop your CSV file here or <span class="highlight">click to browse</span>
+                            </p>
+                            <input type="file" id="csvFile" name="file" accept=".csv" class="d-none" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-magic me-2"></i>
+                            ANALYZE & PREDICT
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="loading" class="loading-container d-none">
+                    <div class="custom-spinner"></div>
+                    <p class="loading-text">
+                        <i class="fas fa-brain me-2"></i>
+                        AI is analyzing your data and generating optimal blend predictions...
+                    </p>
+                </div>
+
+                <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorMessage"></span>
+                </div>
+
+                <div id="resultContainer" class="d-none">
+                    <h5 class="result-title">
+                        <i class="fas fa-chart-line"></i>
+                        PREDICTION COMPLETE
+                    </h5>
+                    <p class="card-text" style="color: rgba(255, 255, 255, 0.8);">Your predictions are ready! A file will download shortly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particleCount = 15;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                document.querySelector('.bg-animation').appendChild(particle);
+            }
+        }
+        createParticles();
+
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('csvFile');
+        const dropZone = document.getElementById('dropZone');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingContainer = document.getElementById('loading');
+        const resultContainer = document.getElementById('resultContainer');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Enhanced file drop functionality
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                fileInput.files = e.dataTransfer.files;
+                updateDropZoneText(file.name);
+            } else {
+                showError('Please drop a valid CSV file.');
+            }
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                updateDropZoneText(fileInput.files[0].name);
+            }
+        });
+
+        function updateDropZoneText(fileName) {
+            dropZone.innerHTML = `
+                <p class="mb-0">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; color: #cccccc; margin-bottom: 1rem; display: block;"></i>
+                    <span style="color: #cccccc; font-weight: 600;">File Ready:</span> <span class="highlight">${fileName}</span>
+                </p>
+            `;
+        }
+
+        function showLoading() {
+            submitBtn.classList.add('d-none');
+            loadingContainer.classList.remove('d-none');
+            resultContainer.classList.add('d-none');
+            errorAlert.classList.add('d-none');
+        }
+
+        function hideLoading() {
+            submitBtn.classList.remove('d-none');
+            loadingContainer.classList.add('d-none');
+        }
+
+        function showError(message) {
+            hideLoading();
+            errorMessage.textContent = message;
+            errorAlert.classList.remove('d-none');
+        }
+
+        function showResults() {
+            hideLoading();
+            resultContainer.classList.remove('d-none');
+        }
+
+        // Form submission with your original functionality
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const file = fileInput.files[0];
+
+            // Show loading spinner and hide previous results/errors
+            showLoading();
+
+            if (!file) {
+                showError('Please select a CSV file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Server error.');
+                }
+
+                const blob = await response.blob();
+                
+                // Create a temporary URL for the blob and download the file
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'predictions.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                // Show success message
+                showResults();
+                
+            } catch (error) {
+                console.error('Prediction failed:', error);
+                showError(`Error: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
